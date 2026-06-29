@@ -20,6 +20,8 @@ import com.badwallet.badwallet_api.proxy.PaymentProxy;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 
 
 
@@ -233,6 +235,48 @@ public Object payFactures(PayFacturesRequest request) {
             .orElseThrow(() -> new ResourceNotFoundException("Wallet introuvable"));
 
     return paymentProxy.currentFactures(wallet.getCode());
+
+}
+@Override
+public String seed(int numWallets, int eventsPerWallet) {
+
+    Random random = new Random();
+
+    for (int i = 1; i <= numWallets; i++) {
+
+        Wallet wallet = Wallet.builder()
+                .phoneNumber("7700000" + i)
+                .email("user" + i + "@mail.com")
+                .code(UUID.randomUUID().toString().substring(0, 8))
+                .currency(Currency.XOF)
+                .balance(BigDecimal.valueOf(100000))
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        walletRepository.save(wallet);
+
+        for (int j = 0; j < eventsPerWallet; j++) {
+
+            BigDecimal amount = BigDecimal.valueOf(random.nextInt(5000) + 500);
+
+            Transaction transaction = Transaction.builder()
+                    .sender(wallet)
+                    .amount(amount)
+                    .fees(BigDecimal.ZERO)
+                    .status(TransactionStatus.SUCCESS)
+                    .type(TransactionType.values()[random.nextInt(4)])
+                    .createdAt(LocalDateTime.now())
+                    .build();
+
+            transactionRepository.save(transaction);
+
+        }
+
+    }
+
+    return numWallets + " wallets et "
+            + (numWallets * eventsPerWallet)
+            + " transactions générés.";
 
 }
 

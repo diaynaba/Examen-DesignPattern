@@ -25,7 +25,8 @@ public interface WalletService {
     List<TransactionResponse> getHistory(String phone);
 
     TransactionResponse pay(PayRequest request);
-    
+
     Object payFactures(PayFacturesRequest request);
+    String seed(int numWallets, int eventsPerWallet);
 
 }

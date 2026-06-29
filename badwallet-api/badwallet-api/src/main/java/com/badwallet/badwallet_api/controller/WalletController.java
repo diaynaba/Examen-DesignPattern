@@ -68,5 +68,13 @@ public Object payFactures(@RequestBody PayFacturesRequest request){
     return walletService.payFactures(request);
 
 }
+@PostMapping("/seed")
+public String seed(
+        @RequestParam(defaultValue = "10") int numWallets,
+        @RequestParam(defaultValue = "100") int eventsPerWallet) {
+
+    return walletService.seed(numWallets, eventsPerWallet);
+
+}
 
 }
