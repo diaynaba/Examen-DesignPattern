@@ -23,12 +23,14 @@ public class Payment {
 
     private String serviceName;
 
-    private String reference;
+    private String factureReference;
 
     private BigDecimal amount;
 
-    private String status;
+    @Builder.Default
+    private Boolean paid = false;
 
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
+
 }

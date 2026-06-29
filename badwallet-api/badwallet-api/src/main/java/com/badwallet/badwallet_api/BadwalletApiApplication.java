@@ -1,4 +1,4 @@
-package com.badwallet.api;
+package com.badwallet.badwallet_api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -9,5 +9,4 @@ public class BadwalletApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(BadwalletApiApplication.class, args);
     }
-
 }
