@@ -206,13 +206,7 @@ public TransactionResponse pay(PayRequest request) {
         throw new RuntimeException("Solde insuffisant");
     }
 
-    PaymentStrategy strategy =
-            paymentStrategyFactory.getStrategy(request.getPaymentMethod());
-
-    strategy.pay(request.getAmount());
-
     wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
-
     walletRepository.save(wallet);
 
     Transaction transaction = Transaction.builder()

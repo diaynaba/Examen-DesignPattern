@@ -1,6 +1,8 @@
 package com.badwallet.badwallet_api.dto.request;
 
-import com.badwallet.badwallet_api.entity.PaymentMethod;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -11,10 +13,14 @@ import java.math.BigDecimal;
 @Builder
 public class PayRequest {
 
+    @NotBlank
     private String phoneNumber;
 
-    private BigDecimal amount;
+    @NotBlank
+    private String serviceName;
 
-    private PaymentMethod paymentMethod;
+    @NotNull
+    @DecimalMin("0.01")
+    private BigDecimal amount;
 
 }

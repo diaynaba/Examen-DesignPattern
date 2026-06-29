@@ -75,5 +75,9 @@ public String seed(
     return walletService.seed(numWallets, eventsPerWallet);
 
 }
+@PostMapping("/pay")
+public TransactionResponse pay(@RequestBody PayRequest request) {
+    return walletService.pay(request);
+}
 
 }
