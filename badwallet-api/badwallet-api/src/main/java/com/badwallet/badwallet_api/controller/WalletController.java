@@ -57,11 +57,10 @@ public TransactionResponse deposit(
     public TransactionResponse transfer(@RequestBody TransferRequest request) {
         return walletService.transfer(request);
     }
-
-    @GetMapping("/{phone}/history")
-    public List<TransactionResponse> history(@PathVariable String phone) {
-        return walletService.getHistory(phone);
-    }
+@GetMapping("/{phone}/transactions")
+public List<TransactionResponse> getTransactions(@PathVariable String phone) {
+    return walletService.getHistory(phone);
+}
     @PostMapping("/pay-factures")
 public Object payFactures(@RequestBody PayFacturesRequest request){
 
