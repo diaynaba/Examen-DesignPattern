@@ -62,5 +62,11 @@ public TransactionResponse deposit(
     public List<TransactionResponse> history(@PathVariable String phone) {
         return walletService.getHistory(phone);
     }
+    @PostMapping("/pay-factures")
+public Object payFactures(@RequestBody PayFacturesRequest request){
+
+    return walletService.payFactures(request);
+
+}
 
 }

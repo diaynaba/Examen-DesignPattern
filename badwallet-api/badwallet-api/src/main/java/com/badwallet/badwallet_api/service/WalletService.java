@@ -10,7 +10,7 @@ public interface WalletService {
 
     WalletResponse createWallet(CreateWalletRequest request);
 
-    Page<WalletResponse> getAllWallets(int page,int size);
+    Page<WalletResponse> getAllWallets(int page, int size);
 
     WalletResponse getWalletByPhone(String phone);
 
@@ -23,5 +23,9 @@ public interface WalletService {
     TransactionResponse transfer(TransferRequest request);
 
     List<TransactionResponse> getHistory(String phone);
+
+    TransactionResponse pay(PayRequest request);
+    
+    Object payFactures(PayFacturesRequest request);
 
 }

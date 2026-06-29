@@ -13,10 +13,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import com.badwallet.badwallet_api.factory.PaymentStrategyFactory;
+import com.badwallet.badwallet_api.strategy.PaymentStrategy;
+import com.badwallet.badwallet_api.proxy.PaymentProxy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+
+
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,8 @@ public class WalletServiceImpl implements WalletService {
 
     private final WalletRepository walletRepository;
     private final TransactionRepository transactionRepository;
+    private final PaymentStrategyFactory paymentStrategyFactory;
+    private final PaymentProxy paymentProxy;
 
     @Override
     public WalletResponse createWallet(CreateWalletRequest request) {
@@ -49,6 +56,7 @@ public class WalletServiceImpl implements WalletService {
         walletRepository.save(wallet);
 
         return WalletMapper.toResponse(wallet);
+        
     }
 
     @Override
@@ -173,18 +181,59 @@ public class WalletServiceImpl implements WalletService {
 
         return TransactionMapper.toResponse(transaction);
     }
+@Override
+public List<TransactionResponse> getHistory(String phone) {
 
-    @Override
-    public List<TransactionResponse> getHistory(String phone) {
+    Wallet wallet = walletRepository.findByPhoneNumber(phone)
+            .orElseThrow(() -> new ResourceNotFoundException("Wallet introuvable"));
 
-        Wallet wallet = walletRepository.findByPhoneNumber(phone)
-                .orElseThrow(() -> new ResourceNotFoundException("Wallet introuvable"));
+    return transactionRepository
+            .findBySenderOrReceiverOrderByCreatedAtDesc(wallet, wallet)
+            .stream()
+            .map(TransactionMapper::toResponse)
+            .toList();
+}
 
-        return transactionRepository
-                .findBySenderOrReceiverOrderByCreatedAtDesc(wallet, wallet)
-                .stream()
-                .map(TransactionMapper::toResponse)
-                .toList();
+@Override
+public TransactionResponse pay(PayRequest request) {
+
+    Wallet wallet = walletRepository.findByPhoneNumber(request.getPhoneNumber())
+            .orElseThrow(() -> new ResourceNotFoundException("Wallet introuvable"));
+
+    if (wallet.getBalance().compareTo(request.getAmount()) < 0) {
+        throw new RuntimeException("Solde insuffisant");
     }
+
+    PaymentStrategy strategy =
+            paymentStrategyFactory.getStrategy(request.getPaymentMethod());
+
+    strategy.pay(request.getAmount());
+
+    wallet.setBalance(wallet.getBalance().subtract(request.getAmount()));
+
+    walletRepository.save(wallet);
+
+    Transaction transaction = Transaction.builder()
+            .sender(wallet)
+            .amount(request.getAmount())
+            .fees(BigDecimal.ZERO)
+            .type(TransactionType.PAYMENT)
+            .status(TransactionStatus.SUCCESS)
+            .createdAt(LocalDateTime.now())
+            .build();
+
+    transactionRepository.save(transaction);
+
+    return TransactionMapper.toResponse(transaction);
+}
+@Override
+public Object payFactures(PayFacturesRequest request) {
+
+    Wallet wallet = walletRepository.findByPhoneNumber(request.getPhoneNumber())
+            .orElseThrow(() -> new ResourceNotFoundException("Wallet introuvable"));
+
+    return paymentProxy.currentFactures(wallet.getCode());
+
+}
 
 }
